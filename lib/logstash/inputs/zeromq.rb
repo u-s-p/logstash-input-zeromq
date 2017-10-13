@@ -153,7 +153,11 @@ class LogStash::Inputs::ZeroMQ < LogStash::Inputs::Base
           msg = m2
         end
         @codec.decode(msg) do |event|
-          event["host"] ||= host
+          event_host = event.get('host')
+          # if event_host is nil or false, set it to the value of the 'host' variable
+          if event_host.nil? or !event_host
+            event.set('host',host)
+          end
           decorate(event)
           output_queue << event
         end
